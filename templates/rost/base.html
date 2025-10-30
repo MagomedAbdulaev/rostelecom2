@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Ростелеком">
+    <link rel="icon" href="{% static 'icons/logo.png' %}" type="image/x-icon">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/normalize.css' %}">
+    <link rel="stylesheet" href="{% static 'css/reset.css' %}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF4F12',
+                    },
+                },
+            },
+        }
+    </script>
+    <title>{{ title }}</title>
+</head>
+<body>
+
+    <div class="wrapper">
+        {% include 'rost/include/header.html' %}
+
+        <main class="main">
+            {% block content %}
+            {% endblock %}
+        </main>
+
+        {% include 'rost/include/footer.html' %}
+
+        {% if messages %}
+            <div class="fixed top-4 right-4 z-50 space-y-2 max-w-sm" id="messages-container">
+                {% for message in messages %}
+                <div class="p-4 rounded-lg shadow-lg border transform transition-all duration-300 ease-in-out {% if message.tags == 'success' %}bg-green-50 border-green-200 text-green-800{% elif message.tags == 'error' %}bg-red-50 border-red-200 text-red-800{% else %}bg-blue-50 border-blue-200 text-blue-800{% endif %} message-item">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            {% if message.tags == 'success' %}
+                            <svg class="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            {% elif message.tags == 'error' %}
+                            <svg class="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                            </svg>
+                            {% else %}
+                            <svg class="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                            </svg>
+                            {% endif %}
+                            <span class="text-sm font-medium">{{ message }}</span>
+                        </div>
+                        <button type="button" class="ml-2 flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors duration-200 message-close">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <!-- Progress bar -->
+                    <div class="mt-2 w-full bg-gray-200 rounded-full h-1">
+                        <div class="h-1 rounded-full progress-bar {% if message.tags == 'success' %}bg-green-400{% elif message.tags == 'error' %}bg-red-400{% else %}bg-blue-400{% endif %}"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const messageItems = document.querySelectorAll('.message-item');
+                const autoHideDelay = 5000; // 5 секунд
+                
+                messageItems.forEach(function(message) {
+                    const progressBar = message.querySelector('.progress-bar');
+                    const closeButton = message.querySelector('.message-close');
+                    
+                    // Анимация progress bar
+                    progressBar.style.transition = `width ${autoHideDelay}ms linear`;
+                    progressBar.style.width = '100%';
+                    
+                    // Функция закрытия сообщения
+                    function closeMessage() {
+                        message.style.transition = 'all 0.3s ease-in-out';
+                        message.style.transform = 'translateX(100%)';
+                        message.style.opacity = '0';
+                        
+                        setTimeout(() => {
+                            if (message.parentNode) {
+                                message.parentNode.removeChild(message);
+                            }
+                            
+                            // Если все сообщения удалены, удаляем контейнер
+                            const container = document.getElementById('messages-container');
+                            if (container && container.children.length === 0) {
+                                container.remove();
+                            }
+                        }, 300);
+                    }
+                    
+                    // Автоматическое закрытие через 5 секунд
+                    const autoHideTimeout = setTimeout(closeMessage, autoHideDelay);
+                    
+                    // Закрытие по клику на кнопку
+                    closeButton.addEventListener('click', function() {
+                        clearTimeout(autoHideTimeout);
+                        closeMessage();
+                    });
+                    
+                    // Закрытие по клику на само сообщение (опционально)
+                    message.addEventListener('click', function(e) {
+                        if (e.target === message || e.target.closest('.message-close') !== closeButton) {
+                            clearTimeout(autoHideTimeout);
+                            closeMessage();
+                        }
+                    });
+                    
+                    // Пауза анимации при наведении
+                    message.addEventListener('mouseenter', function() {
+                        progressBar.style.transition = 'none';
+                        progressBar.style.width = progressBar.style.width;
+                        clearTimeout(autoHideTimeout);
+                    });
+                    
+                    // Возобновление анимации при уходе мыши
+                    message.addEventListener('mouseleave', function() {
+                        const remainingWidth = parseFloat(progressBar.style.width) / 100;
+                        const remainingTime = autoHideDelay * remainingWidth;
+                        
+                        progressBar.style.transition = `width ${remainingTime}ms linear`;
+                        progressBar.style.width = '0%';
+                        
+                        setTimeout(closeMessage, remainingTime);
+                    });
+                });
+            });
+            </script>
+
+            <style>
+            .message-item {
+                animation: slideInRight 0.3s ease-out;
+            }
+
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+
+            .progress-bar {
+                width: 100%;
+                transition: width 5s linear;
+            }
+
+            /* Адаптивность для мобильных устройств */
+            @media (max-width: 640px) {
+                #messages-container {
+                    top: 2rem;
+                    right: 1rem;
+                    left: 1rem;
+                    max-width: none;
+                }
+            }
+            </style>
+            {% endif %}
+    </div>
+
+    <script>
+        let csrf_token = '{{ csrf_token }}';
+    </script>
+</body>
+</html>

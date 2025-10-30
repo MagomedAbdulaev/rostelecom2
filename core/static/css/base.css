@@ -1,0 +1,78 @@
+@font-face {
+    font-family: 'CoreSansCLight';
+    font-style: normal;
+	font-weight: 300;
+    src: local('CoreSansCLight'),
+	    url('../fonts/CoreSansC/CoreSansC-35Light.woff2') format('woff2'),
+        url('../fonts/CoreSansC/CoreSansC-35Light.woff') format('woff'),
+        url('../fonts/CoreSansC/CoreSansC-35Light.ttf') format('ttf'),
+        url('../fonts/CoreSansC/CoreSansC-35Light.eot') format('eot');
+}
+
+@font-face {
+    font-family: 'CoreSansCRegular';
+    font-style: normal;
+	font-weight: 400;
+    src: local('CoreSansCMedium'),
+	    url('../fonts/CoreSansC/CoreSansC-45Regular.woff2') format('woff2'),
+        url('../fonts/CoreSansC/CoreSansC-45Regular.woff') format('woff'),
+        url('../fonts/CoreSansC/CoreSansC-45Regular.ttf') format('ttf'),
+        url('../fonts/CoreSansC/CoreSansC-45Regular.eot') format('eot');
+}
+
+@font-face {
+    font-family: 'CoreSansCMedium';
+    font-style: normal;
+	font-weight: 500;
+    src: local('CoreSansCMedium'),
+        url('../fonts/CoreSansC/CoreSansC-55Medium.woff2') format('woff2'),
+        url('../fonts/CoreSansC/CoreSansC-55Medium.woff') format('woff'),
+        url('../fonts/CoreSansC/CoreSansC-55Medium.ttf') format('ttf'),
+        url('../fonts/CoreSansC/CoreSansC-55Medium.eot') format('eot');
+}
+
+@font-face {
+    font-family: 'CoreSansCBold';
+    font-style: normal;
+	font-weight: 600;
+    src: local('CoreSansCBold'),
+        url('../fonts/CoreSansC/CoreSansC-65Bold.woff2') format('woff2'),
+        url('../fonts/CoreSansC/CoreSansC-65Bold.woff') format('woff'),
+        url('../fonts/CoreSansC/CoreSansC-65Bold.ttf') format('ttf'),
+        url('../fonts/CoreSansC/CoreSansC-65Bold.eot') format('eot');
+}
+
+html,
+body {
+	height: 100%;
+}
+
+.wrapper{
+    max-width: 1920px;
+    margin: 0 auto;
+    font-family: 'CoreSansCRegular', sans-serif;
+    display: flex;
+	flex-direction: column;
+	min-height: 100%;
+}
+
+.main{
+    position: relative;
+    flex: 1 0 auto;
+}
+
+.footer{
+    flex: 0 0 auto;
+}
+
+:root{
+    --color-black: #000;
+    --white-color: #fff;
+    --main-blue-color: #21628c;
+    --main-blue-hover-color: #3292d0;
+    --gray-color: #585758;
+    --grey-background-color: #1e1e20;
+    --error-color: #ff3131;
+    --success-color: #125e39;
+    --input-color: #3264fe;
+}

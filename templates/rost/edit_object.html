@@ -1,0 +1,375 @@
+{% extends 'rost/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Заголовок -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Редактирование объекта</h1>
+            <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Обновление информации об объекте "{{ object.name }}"</p>
+        </div>
+
+        <!-- Форма -->
+        <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
+            <form method="post" class="p-6 space-y-6" id="object-form">
+                {% csrf_token %}
+                
+                <!-- Основная информация -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Поле: Город -->
+                    <div>
+                        <label for="city" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Город *
+                        </label>
+                        <select name="city" id="city" required
+                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            <option value="">Выберите город</option>
+                            {% for city in cities %}
+                            <option value="{{ city.id }}" {% if object.city.id == city.id %}selected{% endif %}>{{ city.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Поле: Название -->
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Название объекта *
+                        </label>
+                        <input type="text" name="name" id="name" required
+                               value="{{ object.name }}"
+                               placeholder="Например: ЖК 'Солнечный', Гостиница 'Восход'"
+                               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+                </div>
+
+                <!-- Адрес и номер квартиры -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Поле: Адрес -->
+                    <div class="md:col-span-2">
+                        <label for="address" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Адрес *
+                        </label>
+                        <textarea name="address" id="address" required rows="2"
+                                  placeholder="Полный адрес объекта"
+                                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white">{{ object.address }}</textarea>
+                    </div>
+
+                    <!-- Поле: Номер квартиры -->
+                    <div>
+                        <label for="apartment_number" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Номер квартиры/помещения
+                        </label>
+                        <input type="text" name="apartment_number" id="apartment_number"
+                               value="{{ object.apartment_number|default:'' }}"
+                               placeholder="24, 15А, офис 3"
+                               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+                </div>
+
+                <!-- Контактная информация -->
+                <div class="border-t dark:border-gray-600 pt-6">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Контактная информация</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Контактный телефон -->
+                        <div>
+                            <label for="contact_phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Контактный телефон
+                            </label>
+                            <input type="tel" name="contact_phone" id="contact_phone"
+                                   value="{{ object.contact_phone|default:'' }}"
+                                   placeholder="+7 XXX XXX-XX-XX"
+                                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        </div>
+
+                        <!-- Удобное время для связи -->
+                        <div>
+                            <label for="convenient_contact_time" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Удобное время для связи
+                            </label>
+                            <select name="convenient_contact_time" id="convenient_contact_time"
+                                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                <option value="">Выберите время</option>
+                                <option value="morning" {% if object.convenient_contact_time == 'morning' %}selected{% endif %}>Утро (9:00-12:00)</option>
+                                <option value="lunch" {% if object.convenient_contact_time == 'lunch' %}selected{% endif %}>Обед (12:00-15:00)</option>
+                                <option value="evening" {% if object.convenient_contact_time == 'evening' %}selected{% endif %}>Вечер (15:00-18:00)</option>
+                                <option value="late_evening" {% if object.convenient_contact_time == 'late_evening' %}selected{% endif %}>Поздний вечер (18:00-21:00)</option>
+                                <option value="weekend" {% if object.convenient_contact_time == 'weekend' %}selected{% endif %}>Выходные дни</option>
+                                <option value="any" {% if object.convenient_contact_time == 'any' %}selected{% endif %}>Любое время</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Описание клиента -->
+                <div>
+                    <label for="client_portrait" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Описание портрета клиента
+                    </label>
+                    <textarea name="client_portrait" id="client_portrait" rows="3"
+                              placeholder="Например: мужчина 40 лет, безработный; женщина 35 лет, работает в сфере услуг"
+                              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white">{{ object.client_portrait|default:'' }}</textarea>
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Опишите клиента: возраст, пол, род занятий</p>
+                </div>
+
+                <!-- Используемые услуги -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Чем пользуется клиент
+                    </label>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" name="services_used" value="internet" 
+                                   {% if object.services_used and 'internet' in object.services_used %}checked{% endif %}
+                                   class="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 dark:bg-gray-700">
+                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Интернет</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" name="services_used" value="tv" 
+                                   {% if object.services_used and 'tv' in object.services_used %}checked{% endif %}
+                                   class="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 dark:bg-gray-700">
+                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Цифровое ТВ</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" name="services_used" value="video_surveillance" 
+                                   {% if object.services_used and 'video_surveillance' in object.services_used %}checked{% endif %}
+                                   class="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 dark:bg-gray-700">
+                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Видеонаблюдение</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" name="services_used" value="internet_nanny" 
+                                   {% if object.services_used and 'internet_nanny' in object.services_used %}checked{% endif %}
+                                   class="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 dark:bg-gray-700">
+                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Интернет-няня</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" name="services_used" value="smart_home" 
+                                   {% if object.services_used and 'smart_home' in object.services_used %}checked{% endif %}
+                                   class="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 dark:bg-gray-700">
+                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Умный дом</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" name="services_used" value="telephony" 
+                                   {% if object.services_used and 'telephony' in object.services_used %}checked{% endif %}
+                                   class="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 dark:bg-gray-700">
+                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Телефония</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Оценка текущего провайдера -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">
+                        Оценка текущего провайдера
+                    </label>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                        {% for value, label in satisfaction_choices %}
+                        <label class="relative flex flex-col items-center p-3 border-2 {% if object.current_provider_rating == value %}border-blue-500 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/30{% else %}border-gray-200 dark:border-gray-600{% endif %} rounded-lg cursor-pointer hover:border-blue-400 dark:hover:border-blue-400 transition-colors duration-200 bg-white dark:bg-gray-700">
+                            <input type="radio" name="current_provider_rating" value="{{ value }}" 
+                                   {% if object.current_provider_rating == value %}checked{% endif %} class="sr-only">
+                            <div class="w-8 h-8 flex items-center justify-center 
+                                {% if value == 1 %}bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400
+                                {% elif value == 2 %}bg-orange-100 dark:bg-orange-900 text-orange-600 dark:text-orange-400
+                                {% elif value == 3 %}bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-400
+                                {% elif value == 4 %}bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400
+                                {% else %}bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400{% endif %} 
+                                rounded-full font-bold text-sm">
+                                {{ value }}
+                            </div>
+                            <span class="mt-2 text-xs text-center text-gray-700 dark:text-gray-300">{{ label|slice:"3:" }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Интерес к услугам -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Интерес к услугам нашего провайдера
+                    </label>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" name="interested_services" value="internet" 
+                                   {% if object.interested_services and 'internet' in object.interested_services %}checked{% endif %}
+                                   class="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 dark:bg-gray-700">
+                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Интернет</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" name="interested_services" value="tv" 
+                                   {% if object.interested_services and 'tv' in object.interested_services %}checked{% endif %}
+                                   class="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 dark:bg-gray-700">
+                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Цифровое ТВ</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" name="interested_services" value="video_surveillance" 
+                                   {% if object.interested_services and 'video_surveillance' in object.interested_services %}checked{% endif %}
+                                   class="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 dark:bg-gray-700">
+                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Видеонаблюдение</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" name="interested_services" value="internet_nanny" 
+                                   {% if object.interested_services and 'internet_nanny' in object.interested_services %}checked{% endif %}
+                                   class="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 dark:bg-gray-700">
+                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Интернет-няня</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" name="interested_services" value="smart_home" 
+                                   {% if object.interested_services and 'smart_home' in object.interested_services %}checked{% endif %}
+                                   class="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 dark:bg-gray-700">
+                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Умный дом</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" name="interested_services" value="additional_services" 
+                                   {% if object.interested_services and 'additional_services' in object.interested_services %}checked{% endif %}
+                                   class="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 dark:bg-gray-700">
+                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Доп. услуги</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Ценовые ожидания и статус -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Желаемая цена -->
+                    <div>
+                        <label for="desired_price" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Желаемая цена за интернет (руб/мес)
+                        </label>
+                        <input type="number" name="desired_price" id="desired_price" step="0.01" min="0"
+                               value="{{ price }}"
+                               placeholder="500.00"
+                               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+
+                    <!-- Статус клиента -->
+                    <div>
+                        <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Статус клиента
+                        </label>
+                        <select name="status" id="status"
+                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            <option value="new" {% if object.status == 'new' %}selected{% endif %}>Новый клиент</option>
+                            <option value="potential" {% if object.status == 'potential' %}selected{% endif %}>Потенциальный клиент</option>
+                            <option value="existing" {% if object.status == 'existing' %}selected{% endif %}>Существующий клиент</option>
+                            <option value="refused" {% if object.status == 'refused' %}selected{% endif %}>Отказался</option>
+                            <option value="callback" {% if object.status == 'callback' %}selected{% endif %}>Нужен перезвон</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Дата следующего контакта -->
+                <div>
+                    <label for="next_contact_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Дата следующего контакта (если требуется)
+                    </label>
+                    <input type="date" name="next_contact_date" id="next_contact_date"
+                           value="{{ object.next_contact_date|date:'Y-m-d'|default:'' }}"
+                           class="w-full md:w-1/3 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                </div>
+
+                <!-- Примечание -->
+                <div>
+                    <label for="notes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Примечание
+                    </label>
+                    <textarea name="notes" id="notes" rows="4"
+                              placeholder="Произвольный комментарий инженера, дополнительные наблюдения, особенности клиента..."
+                              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white">{{ object.notes|default:'' }}</textarea>
+                </div>
+
+                <!-- Координаты -->
+                <div class="border-t dark:border-gray-600 pt-6">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Геолокация</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Широта -->
+                        <div>
+                            <label for="latitude" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Широта
+                            </label>
+                            <input type="number" step="any" name="latitude" id="latitude"
+                                   value="{{ object.latitude|default:'' }}"
+                                   placeholder="42.983060"
+                                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        </div>
+
+                        <!-- Долгота -->
+                        <div>
+                            <label for="longitude" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Долгота
+                            </label>
+                            <input type="number" step="any" name="longitude" id="longitude"
+                                   value="{{ object.longitude|default:'' }}"
+                                   placeholder="47.493390"
+                                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        </div>
+                    </div>
+
+                    <!-- Кнопка определения местоположения -->
+                    <div class="mt-4">
+                        <button type="button" id="get-location" 
+                                class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                            Определить автоматически
+                        </button>
+                        <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Координаты определятся по вашему текущему местоположению</p>
+                    </div>
+                </div>
+
+                <!-- Кнопки действий -->
+                <div class="flex justify-end space-x-3 pt-6 border-t dark:border-gray-600">
+                    <a href="{% url 'rost:home' %}" 
+                       class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200">
+                        Отмена
+                    </a>
+                    <button type="submit"
+                            class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200">
+                        Сохранить изменения
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Добавьте тот же JavaScript для геолокации из create_object.html -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const getLocationBtn = document.getElementById('get-location');
+    const latitudeInput = document.getElementById('latitude');
+    const longitudeInput = document.getElementById('longitude');
+
+    if (getLocationBtn) {
+        getLocationBtn.addEventListener('click', function() {
+            if (!navigator.geolocation) {
+                alert('Геолокация не поддерживается вашим браузером');
+                return;
+            }
+
+            getLocationBtn.disabled = true;
+            getLocationBtn.innerHTML = '<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Определение...';
+
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    latitudeInput.value = position.coords.latitude.toFixed(6);
+                    longitudeInput.value = position.coords.longitude.toFixed(6);
+                    
+                    getLocationBtn.disabled = false;
+                    getLocationBtn.innerHTML = '<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg> Определить автоматически';
+                    
+                    showNotification('Координаты успешно определены!', 'success');
+                },
+                function(error) {
+                    // Обработка ошибок...
+                    getLocationBtn.disabled = false;
+                    getLocationBtn.innerHTML = '<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg> Определить автоматически';
+                }
+            );
+        });
+    }
+});
+</script>
+{% endblock %}

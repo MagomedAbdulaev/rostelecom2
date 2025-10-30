@@ -1,0 +1,156 @@
+{% load static %}
+
+<header class="bg-white dark:bg-[#1e1e20] shadow-md w-full">
+  <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+    <!-- Логотип -->
+    {% url 'rost:login_user' as login_url %}
+    {% url 'rost:home' as home_url %}
+    <div class="flex items-center space-x-2">
+      {% if request and request.path == login_url %}
+      <div class="flex items-center space-x-2">
+        <img src="{% static 'icons/logo.png' %}" alt="Логотип" class="w-6 h-6">
+        <span class="text-lg font-semibold text-primary dark:text-white">Ростелеком CRM</span>
+      </div>
+      {% else %}
+      <a href="{{ home_url }}" class="flex items-center space-x-2">
+        <img src="{% static 'icons/logo.png' %}" alt="Логотип" class="w-6 h-6">
+        <span class="text-lg font-semibold text-primary dark:text-white">Ростелеком CRM</span>
+      </a>
+      {% endif %}
+    </div>
+
+    <!-- Кнопка бургер (только на мобильных) -->
+    <button id="menu-toggle"
+        class="md:hidden text-gray-600 dark:text-gray-300 hover:text-primary focus:outline-none p-2 rounded">
+        <svg id="menu-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <!-- Полоски бургер-меню -->
+            <path id="burger-path" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+    </button>
+
+    <!-- Навигационное меню -->
+    <div id="menu"
+      class="hidden md:flex flex-col md:flex-row md:items-center md:space-x-6 absolute md:static top-16 left-0 w-full md:w-auto bg-white dark:bg-[#1e1e20] shadow-md md:shadow-none p-4 md:p-0 z-50 transition-all duration-200">
+
+      {% if request and request.path != login_url and request.user.is_authenticated %}
+      <nav class="flex flex-col md:flex-row md:items-center md:space-x-6">
+        <a href="{% url 'rost:home' %}"
+          class="text-sm font-medium transition duration-200 {% if request.path == home_url %}text-primary border-b-2 border-primary{% else %}text-gray-600 dark:text-gray-300 hover:text-primary{% endif %}">
+          📊 Главная
+        </a>
+        <i class="pb-2"></i>
+        {% if request.user.role == 'admin' or request.user.role == 'supervisor' %}
+        {% url 'rost:admin_home' as admin_url %}
+        <a href="{{ admin_url }}"
+          class="text-sm font-medium transition duration-200 {% if request.path == admin_url %}text-primary border-b-2 border-primary{% else %}text-gray-600 dark:text-gray-300 hover:text-primary{% endif %}">
+          ⚙️ Админ панель
+        </a>
+        {% endif %}
+      </nav>
+      {% endif %}
+
+      <!-- Пользователь и кнопки -->
+      <div class="flex flex-col md:flex-row md:items-center md:space-x-4 mt-4 md:mt-0">
+        {% if request and request.path != login_url and request.user.is_authenticated %}
+        <div class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-300 mb-2 md:mb-0">
+          
+          <span>{{ request.user.username }}</span>
+        </div>
+        {% endif %}
+
+        <!-- Тема -->
+        <button id="theme-toggle" type="button"
+          class="text-gray-600 dark:text-gray-300 hover:text-primary transition duration-200 flex items-center space-x-2 p-2 rounded">
+          <svg id="theme-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" aria-hidden="true">
+            <path id="theme-path" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+          </svg>
+          <span id="theme-label" class="text-sm">Тема</span>
+        </button>
+
+        {% if request and request.path != login_url %}
+        <form id="logout-form" method="post" action="{% url 'rost:logout_user' %}" class="hidden">
+          {% csrf_token %}
+        </form>
+        <button type="button" id="logout-btn"
+          class="text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 transition duration-200 flex items-center space-x-2 p-2 rounded">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          <span class="text-sm">Выйти</span>
+        </button>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- JS: адаптивное меню + тема + выход -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const wrapper = document.querySelector('.wrapper');
+  const html = document.documentElement;
+  const menuToggle = document.getElementById('menu-toggle');
+  const menu = document.getElementById('menu');
+  const logoutBtn = document.getElementById('logout-btn');
+  const logoutForm = document.getElementById('logout-form');
+  const themeIconPath = document.getElementById('theme-path');
+  const burgerPath = document.getElementById('burger-path');
+
+  // Бургер-меню с анимацией крестика
+  if (menuToggle && menu) {
+    menuToggle.addEventListener('click', function () {
+      menu.classList.toggle('hidden');
+
+      // Переключаем между бургером и крестиком
+      if (!menu.classList.contains('hidden')) {
+        // меню открыто → крестик
+        burgerPath.setAttribute('d', 'M6 18L18 6M6 6l12 12');
+      } else {
+        // меню закрыто → бургер
+        burgerPath.setAttribute('d', 'M4 6h16M4 12h16M4 18h16');
+      }
+    });
+  }
+
+  // Смена темы
+  const storedTheme = localStorage.getItem('theme');
+  if (storedTheme === 'dark') {
+    wrapper?.classList.add('dark');
+    html.classList.add('dark');
+    setMoonIcon();
+  } else {
+    wrapper?.classList.remove('dark');
+    html.classList.remove('dark');
+    setSunIcon();
+  }
+
+  document.getElementById('theme-toggle')?.addEventListener('click', function (e) {
+    e.preventDefault();
+    wrapper?.classList.toggle('dark');
+    html.classList.toggle('dark');
+    const isDark = html.classList.contains('dark');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    isDark ? setMoonIcon() : setSunIcon();
+  });
+
+  // Выход
+  if (logoutBtn && logoutForm) {
+    logoutBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+      if (confirm('Вы уверены, что хотите выйти?')) logoutForm.submit();
+    });
+  }
+
+  // SVG иконки темы
+  function setSunIcon() {
+    themeIconPath.setAttribute('d', 'M12 3v2m0 14v2m9-9h-2M5 12H3m15.364 6.364l-1.414-1.414M7.05 7.05L5.636 5.636m12.728 0L17.95 7.05M7.05 16.95l-1.414 1.414');
+  }
+  function setMoonIcon() {
+    themeIconPath.setAttribute('d', 'M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z');
+  }
+});
+</script>

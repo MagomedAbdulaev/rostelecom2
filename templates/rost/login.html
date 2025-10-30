@@ -1,0 +1,42 @@
+{% extends 'rost/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="min-h-screen flex items-center justify-center">
+    <div class="w-full h-screen bg-white dark:bg-[#1e1e20] p-8 flex flex-col items-center justify-center">
+        <div class="text-center">
+            <h1 class="text-3xl font-bold text-primary dark:text-white mb-4">Ростелеком CRM</h1>
+            <p class="text-gray-500 dark:text-gray-400 text-xl mb-4">Войдите в систему</p>
+        </div>
+
+    <form method="POST" action="{% url 'rost:login_user' %}" class="space-y-8 w-full max-w-2xl">
+        {% csrf_token %}
+        <div>
+            <label class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Логин</label>
+            <input type="text" name="username" required
+                class="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-4 py-3 text-lg focus:ring-2 focus:ring-primary focus:outline-none">
+        </div>
+
+        <div>
+            <label class="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Пароль</label>
+            <input type="password" name="password" required
+                class="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-4 py-3 text-lg focus:ring-2 focus:ring-primary focus:outline-none">
+        </div>
+
+        {% if form.errors %}
+        <p class="text-red-600 text-lg">Неверный логин или пароль</p>
+        {% endif %}
+
+        <div class="w-full mt-8 max-w-2xl">
+            <button type="submit"
+                class="w-full bg-primary hover:bg-blue-700 text-white font-medium text-xl py-4 rounded-lg transition duration-200">
+                Войти
+            </button>
+        </div>
+    </form>
+
+    </div>
+</div>
+
+{% endblock %}
