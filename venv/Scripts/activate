@@ -38,7 +38,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="D:\maga\hackaton25\venv"
+VIRTUAL_ENV="D:\maga\projects\django_ceo_test\rostelecom2\venv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"
